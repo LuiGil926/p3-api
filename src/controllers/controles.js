@@ -12,7 +12,8 @@ export const login = async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(401).json({
-        error: "Usuario no encontrado",
+        message: "usuario no encontrado",
+        status: false,
       });
     }
 
@@ -22,14 +23,16 @@ export const login = async (req, res) => {
 
     if (password !== usuario.contraseña) {
       return res.status(401).json({
-        error: "Contraseña incorrecta",
+        message: "Contraseña incorrecta",
         status: false,
       });
     }
 
     res.status(200).json({
       message: "Usuario autenticado",
+      id: usuario.id,
       user: usuario.correo,
+      nombre: usuario.nombre,
       status: true,
     });
   } catch (error) {
