@@ -1,0 +1,83 @@
+import pool from "../db/confidb.js";
+import bcrypt from "bcrypt";
+
+export const login = async (req, res) => {
+  const { user, password } = req.body;
+
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM usuarios WHERE correo = $1",
+      [user]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        error: "Usuario no encontrado",
+      });
+    }
+
+    const usuario = rows[0];
+
+    const isValid = await bcrypt.compare(password, usuario.contraseña);
+
+    if (password !== usuario.contraseña) {
+      return res.status(401).json({
+        error: "Contraseña incorrecta",
+        status: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "Usuario autenticado",
+      user: usuario.correo,
+      status: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error en la conexión con la base de datos",
+      detalle: error.message,
+    });
+  }
+};
+
+export const register = async (req, res) => {
+  const { password, name, lastname, email } = req.body;
+
+  try {
+    const passwordHashed = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(
+      "INSERT INTO usuarios (nombre, correo, contraseña) VALUES ($1, $2, $3) RETURNING *",
+      [name + " " + lastname, email, passwordHashed]
+    );
+
+    if (rows.length === 0) {
+      res.status(401).json({
+        error: "Error en la creación del usuario",
+      });
+    } else {
+      res.status(200).json({
+        message: "Usuario creado",
+        user: rows[0].correo,
+        status: true,
+      });
+    }
+  } catch (error) {
+    res.status(501).json({
+      error: "Error en la conexión con la base de datos",
+      error: error,
+    });
+  }
+};
+
+export const getproducts = async (req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM productos");
+
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(501).json({
+      error: "Error en la conexión con la base de datos",
+      error: error,
+    });
+  }
+};
