@@ -47,10 +47,9 @@ export const register = async (req, res) => {
   const { password, name, email } = req.body;
 
   try {
-    const passwordHashed = await bcrypt.hash(password, 10);
-    const { rows } = await pool.query(
+      const { rows } = await pool.query(
       "INSERT INTO usuarios (nombre, correo, contraseña) VALUES ($1, $2, $3) RETURNING *",
-      [name, email, passwordHashed]
+      [name, email, password]
     );
 
     if (rows.length === 0) {
