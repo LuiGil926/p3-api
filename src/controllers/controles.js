@@ -59,7 +59,7 @@ export const register = async (req, res) => {
     } else {
       res.status(200).json({
         message: "Usuario creado",
-        user: rows[0].correo,
+        user: rows[0].id,
         status: true,
       });
     }
