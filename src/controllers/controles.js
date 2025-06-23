@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 export const login = async (req, res) => {
   const { user, password } = req.body;
 
+
+
   try {
     const { rows } = await pool.query(
       "SELECT * FROM usuarios WHERE correo = $1",
@@ -91,6 +93,42 @@ export const createCart = async (req, res) => {
     const { rows } = await pool.query(
       "INSERT INTO carrito (usuario_id) VALUES ($1) RETURNING *",
       [id]
+    );
+
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(501).json({
+      error: "Error en la conexión con la base de datos",
+      error: error,
+    });
+  }
+};
+
+export const getCart = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const { rows } = await pool.query(
+      "SELECT producto_id, cantidad FROM carritoitem WHERE carrito_id = $1",
+      [id]
+    );
+
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(501).json({
+      error: "Error en la conexión con la base de datos",
+      error: error,
+    });
+  }
+};
+
+export const updateCart = async (req, res) => {
+  const { id, producto_id, cantidad } = req.body;
+
+  try {
+    const { rows } = await pool.query(
+      "UPDATE carritoitem SET cantidad = $2 WHERE carrito_id = $1 AND producto_id = $3",
+      [id, cantidad, producto_id]
     );
 
     res.status(200).json(rows);
