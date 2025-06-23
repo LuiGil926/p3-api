@@ -139,3 +139,38 @@ export const updateCart = async (req, res) => {
     });
   }
 };
+
+export const addCart = async (req, res) => {
+  const { id, producto_id, cantidad } = req.body;
+
+  try {
+       const existing = await pool.query(
+      "SELECT * FROM carritoitem WHERE carrito_id = $1 AND producto_id = $2",
+      [id, producto_id]
+    );
+
+    let result;
+
+    if (existing.rows.length > 0) {
+
+      result = await pool.query(
+        "UPDATE carritoitem SET cantidad = cantidad + $1 WHERE carrito_id = $2 AND producto_id = $3 RETURNING *",
+        [cantidad, id, producto_id]
+      );
+    } else {
+
+      result = await pool.query(
+        "INSERT INTO carritoitem (carrito_id, producto_id, cantidad) VALUES ($1, $2, $3) RETURNING *",
+        [id, producto_id, cantidad]
+      );
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error al agregar al carrito:", error);
+    res.status(500).json({
+      status: false,
+      message: "Error al agregar al carrito",
+    });
+  }
+};
