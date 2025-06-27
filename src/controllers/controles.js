@@ -141,7 +141,7 @@ export const addCart = async (req, res) => {
   try {
   
     const { rows } = await pool.query(
-      "INSERT INTO carritoitem (carrito_id, producto_id, cantidad)VALUES ($1, $2, $1)RETURNING *",
+      "INSERT INTO carritoitem (carrito_id, producto_id, cantidad)VALUES ($1, $2, $3)RETURNING *",
       [id, producto_id, cantidad]
     )
 
