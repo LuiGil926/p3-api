@@ -4,8 +4,6 @@ import bcrypt from "bcrypt";
 export const login = async (req, res) => {
   const { user, password } = req.body;
 
-
-
   try {
     const { rows } = await pool.query(
       "SELECT * FROM usuarios WHERE correo = $1",
@@ -49,7 +47,7 @@ export const register = async (req, res) => {
   const { password, name, email } = req.body;
 
   try {
-      const { rows } = await pool.query(
+    const { rows } = await pool.query(
       "INSERT INTO usuarios (nombre, correo, contraseña) VALUES ($1, $2, $3) RETURNING *",
       [name, email, password]
     );
@@ -122,7 +120,6 @@ export const getCart = async (req, res) => {
   }
 };
 
-
 export const addCart = async (req, res) => {
   const { id, producto_id, cantidad } = req.body;
 
@@ -132,27 +129,11 @@ export const addCart = async (req, res) => {
     !Number.isInteger(cantidad) ||
     cantidad <= 0
   ) {
-    return res.status(400).json({
-      status: false,
-      message: "Datos inválidos",
-    });
+      return res.status(400).json({
+        status: false,
+        message: "Datos inválidos",
+      });
   }
 
-  try {
-  
-    const { rows } = await pool.query(
-      "INSERT INTO carritoitem (carrito_id, producto_id, cantidad)VALUES ($1, $2, $3)RETURNING *",
-      [id, producto_id, cantidad]
-    )
-
-    res.status(200).json(rows);
-      
-   
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "Error al agregar al carrito",
-    });
-  }
+  console.log(id, producto_id, cantidad);
 };
-
