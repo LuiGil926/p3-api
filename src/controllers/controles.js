@@ -122,23 +122,7 @@ export const getCart = async (req, res) => {
   }
 };
 
-export const updateCart = async (req, res) => {
-  const { id, producto_id, cantidad } = req.body;
 
-  try {
-    const { rows } = await pool.query(
-      "UPDATE carritoitem SET cantidad = $2 WHERE carrito_id = $1 AND producto_id = $3",
-      [id, cantidad, producto_id]
-    );
-
-    res.status(200).json(rows);
-  } catch (error) {
-    res.status(501).json({
-      error: "Error en la conexión con la base de datos",
-      error: error,
-    });
-  }
-};
 export const addCart = async (req, res) => {
   const { id, producto_id, cantidad } = req.body;
 
@@ -155,43 +139,15 @@ export const addCart = async (req, res) => {
   }
 
   try {
-    const carritoCheck = await db.query(
-      "SELECT id FROM carrito WHERE id = $1",
-      [id]
-    );
+  
+    const { rows } = await pool.query(
+      "INSERT INTO carritoitem (carrito_id, producto_id, cantidad)VALUES ($1, $2, $1)RETURNING *",
+      [id, producto_id, cantidad]
+    )
 
-    if (carritoCheck.rows.length === 0) {
-      return res.status(404).json({
-        status: false,
-        message: "Carrito no encontrado",
-      });
-    }
-
-    const existe = await db.query(
-      "SELECT * FROM carritoitem WHERE carrito_id = $1 AND producto_id = $2",
-      [id, producto_id]
-    );
-
-    let result;
-
-    if (existe.rows.length > 0) {
-      result = await db.query(
-        `UPDATE carritoitem
-         SET cantidad = cantidad + $1
-         WHERE carrito_id = $2 AND producto_id = $3
-         RETURNING *`,
-        [cantidad, id, producto_id]
-      );
-    } else {
-      result = await db.query(
-        `INSERT INTO carritoitem (carrito_id, producto_id, cantidad)
-         VALUES ($1, $2, $3)
-         RETURNING *`,
-        [id, producto_id, cantidad]
-      );
-    }
-
-    res.status(200).json(result.rows);
+    res.status(200).json(rows);
+      
+   
   } catch (error) {
     res.status(500).json({
       status: false,
@@ -199,3 +155,4 @@ export const addCart = async (req, res) => {
     });
   }
 };
+
