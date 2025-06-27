@@ -107,7 +107,7 @@ export const getCart = async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      "select carritoitem.producto_id, productos.nombre, productos.imagen_url from carritoitem inner join productos on carritoitem.producto_id = productos.id where carrito_id = $1",
+      "select carritoitem.producto_id, productos.nombre, productos.imagen_url, carritoitem.cantidad from carritoitem inner join productos on carritoitem.producto_id = productos.id where carritoitem.carrito_id = $1",
       [id]
     );
 
