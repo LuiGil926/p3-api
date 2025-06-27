@@ -102,6 +102,24 @@ export const createCart = async (req, res) => {
   }
 };
 
+export const deleteProduct = async (req, res) => {
+  const { carrito_id, producto_id } = req.body;
+
+  try {
+    const { rows } = await pool.query(
+      "update carritoitem set cantidad = cantidad - 1 where producto_id = $2 and carrito_id = $1",
+      [carrito_id, producto_id]
+    );
+
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(501).json({
+      error: "Error en la conexión con la base de datos",
+      error: error,
+    });
+  }
+}
+
 export const getCart = async (req, res) => {
   const { id } = req.body;
 
